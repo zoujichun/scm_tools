@@ -51,6 +51,8 @@ def main():
   uploader = sys.argv[6]
   oldrev = sys.argv[8]
   newrev = sys.argv[10]
+  if re.match("refs/for", refname):
+    return
   if project in projects_need_validate:
     validate(uploader, oldrev, newrev)
 
