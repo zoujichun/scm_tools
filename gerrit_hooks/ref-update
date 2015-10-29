@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# -*- coding:utf8 -*-
+# Author: zoujichun3166@gmail.com
+
+import sys
+import re
+
+from subprocess import check_output, check_call
+
+MESSAGE_TEMP = '''
+Please fix this by following the template.
+
+Commit message template:
+[B#bugid or F#featureid or U] subject
+
+1. B means bug
+2. F means new feature
+3. U means other
+'''
+RULE = '^\s*\[R\s*#\s*.*\]|^\s*\[F\s*#.*\]|^\s*\[B\s*#.*\]|^\s*\[\s*U\s*.*]|^\[CM\]|^\[MERGE\]'
+projects_need_validate = [
+  'test1'
+  'test2']
+
+def commit_check(commit):
+  subject = check_output(['git', 'log', '-1', commit, '--format=%s'])
+  t = re.search(RULE, subject)
+  if t is not None:
+    return True
+  else:
+    return False
+
+def validate(uploader, oldrev, newrev):
+  fails = []
+  commits = check_output(['git', 'log', '--no-merges', '--format=%H', '%s..%s' %(oldrev, newrev)]).splitlines()
+  for c in commits:
+    if not commit_check(c):
+      fails.append(c)
+  
+  if len(fails) > 0:
+    print >> sys.stderr, "Hi %s,\n" %(uploader)
+    print >> sys.stderr, "Commit messages are illegal:"
+    for i in fails:
+      check_call(['git', 'log', '-1', '--oneline', i])
+    print >> sys.stderr, MESSAGE_TEMP
+    sys.exit(1)
+
+def main():
+  project = sys.argv[2]
+  refname = sys.argv[4]
+  uploader = sys.argv[6]
+  oldrev = sys.argv[8]
+  newrev = sys.argv[10]
+  if project in projects_need_validate:
+    validate(uploader, oldrev, newrev)
+
+if __name__ == '__main__':
+    main()
