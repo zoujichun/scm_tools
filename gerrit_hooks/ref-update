@@ -9,13 +9,14 @@ from subprocess import check_output, check_call
 
 MESSAGE_TEMP = '''
 Please fix this by following the template.
-
 Commit message template:
+-------------------------------------------
 [B#bugid or F#featureid or U] subject
 
 1. B means bug
 2. F means new feature
 3. U means other
+-------------------------------------------
 '''
 RULE = '^\s*\[R\s*#\s*.*\]|^\s*\[F\s*#.*\]|^\s*\[B\s*#.*\]|^\s*\[\s*U\s*.*]|^\[CM\]|^\[MERGE\]'
 projects_need_validate = [
